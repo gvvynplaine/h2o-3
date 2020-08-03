@@ -95,10 +95,10 @@ public class GAM extends ModelBuilder<GAMModel, GAMModel.GAMParameters, GAMModel
         knots[index] = new double[knotContent.length];
         final double[][] knotCTranspose = ArrayUtils.transpose(knotContent);
         System.arraycopy(knotCTranspose[0],0,knots[index], 0, knots[index].length);
-        failVerifyKnots(knots[index]);
+        failVerifyKnots(knots[index], index);
       } else {  // current column knotkey is null
         knots[index] = generateKnotsOneColumn(predictVec, _parms._num_knots[index]);
-        failVerifyKnots(knots[index]);
+        failVerifyKnots(knots[index], index);
       }
     }
     return knots;
@@ -107,16 +107,24 @@ public class GAM extends ModelBuilder<GAMModel, GAMModel.GAMParameters, GAMModel
   // this function will check and make sure the knots location specified in knots are valid in the following sense:
   // 1. They do not contain NaN
   // 2. They are sorted in ascending order.
-  public void failVerifyKnots(double[] knots) {
+  public void failVerifyKnots(double[] knots, int gam_column_index) {
     for (int index = 0; index < knots.length; index++) {
       if (Double.isNaN(knots[index])) {
         error("knots formation", "default knots generation contain NaN.   Please specify it" +
                 " manually");
         return;
       }
-      if (index > 0 && knots[index - 1] >= knots[index]) { // knots must be increasing in order
-        error("knots formation", String.format("knots not sorted in ascending order. Knots at index %d: %f." +
-                "  Knots at index %d: %f", index-1, knots[index-1], index, knots[index]));
+      if (index > 0 && knots[index - 1] > knots[index]) {
+        error("knots formation", String.format("knots not sorted in ascending order for gam_column %s. " +
+                        "Knots at index %d: %f.  Knots at index %d: %f",_parms._gam_columns[gam_column_index], index-1, 
+                knots[index-1], index, knots[index]));
+        return;
+      }
+      if (index > 0 && knots[index - 1] == knots[index]) {
+        error("knots formation", String.format("chosen gam_column %s do have not enough values to generate " +
+                "well-defined knots. Please choose other columns or reduce the number of knots.  Knots at index %d: " +
+                "%f.  Knots at index %d: %f", _parms._gam_columns[gam_column_index], index-1, knots[index-1], index,
+                knots[index]));
         return;
       }
     }
