@@ -121,9 +121,10 @@ public class GAM extends ModelBuilder<GAMModel, GAMModel.GAMParameters, GAMModel
         return;
       }
       if (index > 0 && knots[index - 1] == knots[index]) {
-        error("knots formation", String.format("chosen gam_column %s do have not enough values to generate " +
-                "well-defined knots. Please choose other columns or reduce the number of knots.  Knots at index %d: " +
-                "%f.  Knots at index %d: %f", _parms._gam_columns[gam_column_index], index-1, knots[index-1], index,
+        error("knots formation", String.format("chosen gam_column %s does have not enough values to " +
+                        "generate well-defined knots. Please choose other columns or reduce the number of knots.  " +
+                        "Knots at index %d: %f.  Knots at index %d: %f", _parms._gam_columns[gam_column_index], 
+                index-1, knots[index-1], index,
                 knots[index]));
         return;
       }
